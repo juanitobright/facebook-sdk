@@ -98,10 +98,11 @@ class GraphAPI(object):
         version=None,
         proxies=None,
         session=None,
+        appsecret_proof=None
     ):
         # The default version is only used if the version kwarg does not exist.
         default_version = VALID_API_VERSIONS[0]
-
+        self.appsecret_proof = appsecret_proof
         self.access_token = access_token
         self.timeout = timeout
         self.proxies = proxies
@@ -285,6 +286,14 @@ class GraphAPI(object):
                 post_args["access_token"] = self.access_token
             elif "access_token" not in args:
                 args["access_token"] = self.access_token
+
+        if self.appsecret_proof:
+            # If post_args exists, we assume that args either does not exists
+            # or it does not need `access_token`.
+            if post_args and "appsecret_proof" not in post_args:
+                post_args["appsecret_proof"] = self.appsecret_proof
+            elif "appsecret_proof" not in args:
+                args["appsecret_proof"] = self.appsecret_proof
 
         try:
             response = self.session.request(
